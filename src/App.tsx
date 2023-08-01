@@ -72,7 +72,7 @@ function App() {
   }, [response]);
 
   const answerColor =
-    right === null ? "gray.400" : right ? "green.400" : "red.400";
+    right === null ? "blackAlpha.800" : right ? "green.400" : "red.400";
 
   const getButtonColorScheme = (buttonValue: Preposition["mode"]) => {
     if (right === null) return "gray";
@@ -82,8 +82,8 @@ function App() {
     return "gray";
   };
   return (
-    <Container>
-      <Box display={"flex"} flexDirection={"column"}>
+    <Container height={"100%"}>
+      <Box display={"flex"} flexDirection={"column"} height={"100%"}>
         <Box
           flexGrow={1}
           display={"flex"}
@@ -96,8 +96,15 @@ function App() {
             </Heading>
           </Box>
         </Box>
-        <Box style={{ paddingBottom: "20px" }}>
-          <ButtonGroup flexGrow={0}>
+        <Box
+          style={{
+            paddingBottom: "20px",
+            display: "flex",
+            justifyContent: "center",
+          }}
+          flexGrow={0}
+        >
+          <ButtonGroup>
             <Button
               colorScheme={getButtonColorScheme("akk")}
               disabled={right !== null}
