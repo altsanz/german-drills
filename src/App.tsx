@@ -1,6 +1,7 @@
 import { Box, Button, ButtonGroup, Container, Heading } from "@chakra-ui/react";
 import React from "react";
 import "./App.css";
+import { useStreak } from "./hooks/useStreak";
 
 type Preposition = {
   preposition: string;
@@ -57,7 +58,12 @@ const prepositions: Prepositions = [
 function App() {
   const { preposition, nextPreposition } = usePreposition(prepositions);
   const [right, setRight] = React.useState<boolean | null>(null);
-
+  const {
+    increment: incrementStreak,
+    reset: resetStreak,
+    currentStreak,
+    maxStreak,
+  } = useStreak();
   const [response, setResponse] = React.useState<"akk" | "dat" | "wechsel">();
   React.useEffect(() => {
     if (response) {
@@ -67,6 +73,11 @@ function App() {
         nextPreposition();
         setRight(null);
         setResponse(undefined);
+        if (responseIsCorrect) {
+          incrementStreak();
+        } else {
+          resetStreak();
+        }
       }, 2000);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -93,10 +104,10 @@ function App() {
           alignItems={"flex-end"}
         >
           <Heading as="h6" color={"gray.400"} size="xs">
-            Current streak: 20
+            Current streak: {currentStreak}
           </Heading>
           <Heading as="h6" color={"gray.400"} size="xs">
-            Record streak: 32
+            Record streak: {maxStreak}
           </Heading>
         </Box>
         <Box

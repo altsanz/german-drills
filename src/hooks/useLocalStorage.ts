@@ -1,8 +1,10 @@
-export const useLocalStorage = (
-  key: string
-): [string | null, (value: string) => void] => {
-  function setLocalStorage(value: string) {
-    localStorage.setItem(key, value);
+export const useLocalStorage = <T>(
+  key: string,
+  parse: (stringifiedValue: string | null) => T,
+  serializer: (value: T) => string = JSON.stringify
+): [T, (value: T) => void] => {
+  function setLocalStorage(value: T) {
+    localStorage.setItem(key, serializer(value));
   }
-  return [localStorage.getItem(key), setLocalStorage];
+  return [parse(localStorage.getItem(key)), setLocalStorage];
 };
