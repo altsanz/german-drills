@@ -61,7 +61,8 @@ function App() {
   const [response, setResponse] = React.useState<"akk" | "dat" | "wechsel">();
   React.useEffect(() => {
     if (response) {
-      setRight(response === preposition.mode);
+      const responseIsCorrect = response === preposition.mode;
+      setRight(responseIsCorrect);
       setTimeout(() => {
         nextPreposition();
         setRight(null);
@@ -85,6 +86,20 @@ function App() {
     <Container height={"100%"}>
       <Box display={"flex"} flexDirection={"column"} height={"100%"}>
         <Box
+          flexGrow={0}
+          marginTop={"2"}
+          display={"flex"}
+          flexDirection={"column"}
+          alignItems={"flex-end"}
+        >
+          <Heading as="h6" color={"gray.400"} size="xs">
+            Current streak: 20
+          </Heading>
+          <Heading as="h6" color={"gray.400"} size="xs">
+            Record streak: 32
+          </Heading>
+        </Box>
+        <Box
           flexGrow={1}
           display={"flex"}
           justifyContent={"center"}
@@ -98,6 +113,10 @@ function App() {
         </Box>
         <Box
           style={{
+            position: "fixed",
+            bottom: 0,
+            left: 0,
+            width: "100%",
             paddingBottom: "20px",
             display: "flex",
             justifyContent: "center",
