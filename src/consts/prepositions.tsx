@@ -1,7 +1,14 @@
+export type Mode = "akk" | "dat";
+
 export type Preposition = {
   preposition: string;
-  mode: "akk" | "dat" | "wechsel";
+  mode: Mode | "wechsel";
 };
+
+export interface FixedPreposition extends Preposition {
+  mode: Mode;
+}
+
 export type Prepositions = ReadonlyArray<Preposition>;
 export const prepositions: Prepositions = [
   {
@@ -49,10 +56,7 @@ export const prepositions: Prepositions = [
   { preposition: "zu", mode: "dat" },
 ];
 
-export const prepositionsWithoutWechsel: ReadonlyArray<{
-  preposition: string;
-  mode: "akk" | "dat";
-}> = [
+export const prepositionsWithoutWechsel: ReadonlyArray<FixedPreposition> = [
   {
     preposition: "bis",
     mode: "akk",
@@ -89,10 +93,22 @@ export const prepositionsWithoutWechsel: ReadonlyArray<{
   { preposition: "zu", mode: "dat" },
 ];
 
-export const validPronounsForMode: Record<
-  "akk" | "dat",
-  ReadonlyArray<string>
-> = {
-  akk: ["einen", "ein", "eine", "den", "die", "das"],
-  dat: ["einem", "einer", "einen", "dem", "der", "den"],
+export const pronounsByMode: Record<Mode, ReadonlyArray<string>> = {
+  akk: ["mich", "dich", "ihn", "es", "sie", "uns", "euch", "sie"],
+  dat: ["mir", "dir", "ihm", "ihr", "ihn", "uns", "euch", "ihnen"],
+};
+
+export const articlesByMode: Record<Mode, ReadonlyArray<string>> = {
+  akk: ["einen", "ein", "eine", "den", "die", "das", "ihren", "ihres", "ihre"],
+  dat: [
+    "einem",
+    "einer",
+    "einen",
+    "dem",
+    "der",
+    "den",
+    "ihrem",
+    "ihrer",
+    "ihren",
+  ],
 };

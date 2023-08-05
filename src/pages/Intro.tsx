@@ -22,6 +22,12 @@ export const Intro: React.FC = () => {
       >
         Akk Wech Dat
       </Button>
+      <Button
+        style={{ marginTop: "20px" }}
+        onClick={() => navigate("/prep-and-pron")}
+      >
+        Prep und pron
+      </Button>
     </Box>
   );
 };

@@ -11,9 +11,10 @@ import React, { useEffect } from "react";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Summary } from "../components/Summary";
 import {
+  FixedPreposition,
   Preposition,
-  Prepositions,
   prepositionsWithoutWechsel,
+  pronounsByMode,
 } from "../consts/prepositions";
 import { useStreak } from "../hooks/useStreak";
 // const PREPOSITIONS_PER_ROUND = 2;
@@ -28,18 +29,10 @@ function PrepAndPron() {
     prepositionsWithoutWechsel
   );
 
-  const challenge = getPrepositionWithProns(preposition);
+  const challenge = React.useMemo(() => withProns(preposition), [preposition]);
 
   const [right, setRight] = React.useState<boolean | null>(null);
 
-  // useEffect(() => {
-  //   const isWechsel = preposition.mode === "wechsel";
-  //   const rightAnswer = isWechsel
-  //     ? validPronounsForMode[preposition.mode][
-  //         Math.random() * validPronounsForMode[preposition.mode].length
-  //       ]
-  //     : "";
-  // }, []);
   const {
     increment: incrementStreak,
     reset: resetStreak,
@@ -49,7 +42,7 @@ function PrepAndPron() {
   const [response, setResponse] = React.useState<string>();
   React.useEffect(() => {
     if (response) {
-      const responseIsCorrect = isResponseCorrect();
+      const responseIsCorrect = response === challenge.correctPron;
       setRight(responseIsCorrect);
       setTimeout(() => {
         setShow(false);
@@ -79,6 +72,7 @@ function PrepAndPron() {
           element={
             <Game
               possibleValues={challenge.possibleProns}
+              correctPron={challenge.correctPron}
               response={response}
               right={right}
               preposition={preposition}
@@ -95,23 +89,18 @@ function PrepAndPron() {
   );
 }
 
-const isResponseCorrect = () => {
-  console.warn("to implement");
-  return true;
-};
-
 export default PrepAndPron;
 
-const usePreposition = (
-  prepositions: Prepositions
+const usePreposition = <T extends Preposition>(
+  prepositions: ReadonlyArray<T>
 ): {
-  preposition: Preposition;
+  preposition: T;
   nextPreposition(): void;
 } => {
   const getRandomPreposition = () =>
     prepositions[Math.trunc(Math.random() * prepositions.length)];
 
-  const [preposition, setPreposition] = React.useState<Preposition>(
+  const [preposition, setPreposition] = React.useState<T>(
     getRandomPreposition()
   );
   const nextPreposition = () => {
@@ -156,9 +145,10 @@ const useStats = () => {
 
 const Game: React.FC<{
   response: string | undefined;
-  possibleValues: [string, string, string];
+  possibleValues: ReadonlyArray<string>;
+  correctPron: string;
   right: boolean | null;
-  preposition: Preposition;
+  preposition: FixedPreposition;
   currentStreak: number;
   maxStreak: number;
   show: boolean;
@@ -166,6 +156,7 @@ const Game: React.FC<{
 }> = ({
   response,
   possibleValues,
+  correctPron,
   right,
   preposition,
   currentStreak,
@@ -230,7 +221,7 @@ const Game: React.FC<{
                 pron,
                 response,
                 right,
-                preposition.mode
+                correctPron
               )}
               key={pron}
               onClick={() => onResponse(pron)}
@@ -244,18 +235,43 @@ const Game: React.FC<{
   );
 };
 
-const getPrepositionWithProns = (
-  preposition: Preposition
+const withProns = (
+  preposition: FixedPreposition
 ): {
-  preposition: string;
-  possibleProns: [string, string, string];
+  preposition: FixedPreposition;
+  possibleProns: ReadonlyArray<string>;
   correctPron: string;
 } => {
+  const correctPron = getRandomElementFromList(
+    pronounsByMode[preposition.mode]
+  );
+  const invalidPronounsForCurrentMode = pronounsByMode[
+    preposition.mode === "akk" ? "dat" : "akk"
+  ].filter((pronoun) => !pronounsByMode[preposition.mode].includes(pronoun)); // discard pronouns from other modes that are valid for this preposition
+
+  const twoPronsOfWrongMode = Array.from({ length: 2 }, () => "").reduce<
+    ReadonlyArray<string>
+  >((acc) => {
+    let randomPron = getRandomElementFromList(invalidPronounsForCurrentMode);
+    while (acc.includes(randomPron)) {
+      randomPron = getRandomElementFromList(invalidPronounsForCurrentMode);
+    }
+    return [...acc, randomPron];
+  }, []);
+
+  const possibleProns = [correctPron, ...twoPronsOfWrongMode].sort(
+    () => Math.random() - 0.5 // shuffle them
+  );
+
   return {
-    preposition: preposition.preposition,
-    possibleProns: ["den", "dem", "der"],
-    correctPron: "dem",
+    preposition,
+    possibleProns,
+    correctPron,
   };
+};
+
+const getRandomElementFromList = <T,>(list: ReadonlyArray<T>): T => {
+  return list[Math.trunc(Math.random() * list.length)];
 };
 
 const getButtonColorScheme = (
