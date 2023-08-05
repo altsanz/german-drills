@@ -10,80 +10,46 @@ import React, { useEffect } from "react";
 // import "../App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Summary } from "../components/Summary";
+import {
+  Preposition,
+  Prepositions,
+  prepositionsWithoutWechsel,
+} from "../consts/prepositions";
 import { useStreak } from "../hooks/useStreak";
-type Preposition = {
-  preposition: string;
-  mode: "akk" | "dat" | "wechsel";
-};
-
-type Prepositions = ReadonlyArray<Preposition>;
-
-const prepositions: Prepositions = [
-  {
-    preposition: "bis",
-    mode: "akk",
-  },
-  {
-    preposition: "durch",
-    mode: "akk",
-  },
-  {
-    preposition: "für",
-    mode: "akk",
-  },
-  {
-    preposition: "gegen",
-    mode: "akk",
-  },
-  {
-    preposition: "ohne",
-    mode: "akk",
-  },
-  {
-    preposition: "um",
-    mode: "akk",
-  },
-  { preposition: "an", mode: "wechsel" },
-  { preposition: "auf", mode: "wechsel" },
-  // { preposition: "entlang", mode: "wechsel" },
-  { preposition: "hinter", mode: "wechsel" },
-  { preposition: "in", mode: "wechsel" },
-  { preposition: "neben", mode: "wechsel" },
-  { preposition: "über", mode: "wechsel" },
-  { preposition: "unter", mode: "wechsel" },
-  { preposition: "vor", mode: "wechsel" },
-  { preposition: "zwischen", mode: "wechsel" },
-  { preposition: "aus", mode: "dat" },
-  { preposition: "ausser", mode: "dat" },
-  { preposition: "bei", mode: "dat" },
-  // { preposition: "gegenüber", mode: "dat" },
-  { preposition: "mit", mode: "dat" },
-  { preposition: "nach", mode: "dat" },
-  { preposition: "seit", mode: "dat" },
-  { preposition: "von", mode: "dat" },
-  { preposition: "zu", mode: "dat" },
-];
-
 // const PREPOSITIONS_PER_ROUND = 2;
-function WechAkkDat() {
+function PrepAndPron() {
   const { incrementRight, incrementWrong, stats } = useStats();
   const navigate = useNavigate();
   useEffect(() => {
     // stats.right + stats.wrong >= PREPOSITIONS_PER_ROUND && navigate("./final");
   }, [navigate, stats.right, stats.wrong]);
   const [show, setShow] = React.useState(true);
-  const { preposition, nextPreposition } = usePreposition(prepositions);
+  const { preposition, nextPreposition } = usePreposition(
+    prepositionsWithoutWechsel
+  );
+
+  const challenge = getPrepositionWithProns(preposition);
+
   const [right, setRight] = React.useState<boolean | null>(null);
+
+  // useEffect(() => {
+  //   const isWechsel = preposition.mode === "wechsel";
+  //   const rightAnswer = isWechsel
+  //     ? validPronounsForMode[preposition.mode][
+  //         Math.random() * validPronounsForMode[preposition.mode].length
+  //       ]
+  //     : "";
+  // }, []);
   const {
     increment: incrementStreak,
     reset: resetStreak,
     currentStreak,
     maxStreak,
   } = useStreak();
-  const [response, setResponse] = React.useState<"akk" | "dat" | "wechsel">();
+  const [response, setResponse] = React.useState<string>();
   React.useEffect(() => {
     if (response) {
-      const responseIsCorrect = response === preposition.mode;
+      const responseIsCorrect = isResponseCorrect();
       setRight(responseIsCorrect);
       setTimeout(() => {
         setShow(false);
@@ -112,6 +78,7 @@ function WechAkkDat() {
           path="/"
           element={
             <Game
+              possibleValues={challenge.possibleProns}
               response={response}
               right={right}
               preposition={preposition}
@@ -128,7 +95,12 @@ function WechAkkDat() {
   );
 }
 
-export default WechAkkDat;
+const isResponseCorrect = () => {
+  console.warn("to implement");
+  return true;
+};
+
+export default PrepAndPron;
 
 const usePreposition = (
   prepositions: Prepositions
@@ -183,15 +155,17 @@ const useStats = () => {
 };
 
 const Game: React.FC<{
-  response: "akk" | "dat" | "wechsel" | undefined;
+  response: string | undefined;
+  possibleValues: [string, string, string];
   right: boolean | null;
   preposition: Preposition;
   currentStreak: number;
   maxStreak: number;
   show: boolean;
-  onResponse: (response: "akk" | "dat" | "wechsel") => void;
+  onResponse: (response: string) => void;
 }> = ({
   response,
+  possibleValues,
   right,
   preposition,
   currentStreak,
@@ -250,50 +224,45 @@ const Game: React.FC<{
         flexGrow={0}
       >
         <ButtonGroup>
-          <Button
-            colorScheme={getButtonColorScheme(
-              "akk",
-              response,
-              right,
-              preposition.mode
-            )}
-            onClick={() => onResponse("akk")}
-          >
-            Akk
-          </Button>
-          <Button
-            colorScheme={getButtonColorScheme(
-              "wechsel",
-              response,
-              right,
-              preposition.mode
-            )}
-            onClick={() => onResponse("wechsel")}
-          >
-            Wechsel
-          </Button>
-          <Button
-            colorScheme={getButtonColorScheme(
-              "dat",
-              response,
-              right,
-              preposition.mode
-            )}
-            onClick={() => onResponse("dat")}
-          >
-            Dat
-          </Button>
+          {possibleValues.map((pron) => (
+            <Button
+              colorScheme={getButtonColorScheme(
+                pron,
+                response,
+                right,
+                preposition.mode
+              )}
+              key={pron}
+              onClick={() => onResponse(pron)}
+            >
+              {pron}
+            </Button>
+          ))}
         </ButtonGroup>
       </Box>
     </Box>
   );
 };
 
+const getPrepositionWithProns = (
+  preposition: Preposition
+): {
+  preposition: string;
+  possibleProns: [string, string, string];
+  correctPron: string;
+} => {
+  return {
+    preposition: preposition.preposition,
+    possibleProns: ["den", "dem", "der"],
+    correctPron: "dem",
+  };
+};
+
 const getButtonColorScheme = (
-  buttonValue: Preposition["mode"],
-  response: "akk" | "dat" | "wechsel" | undefined,
+  buttonValue: string,
+  response: string | undefined,
   right: boolean | null,
-  rightAnswer: Preposition["mode"]
+  rightAnswer: string
 ): "gray" | "green" | "red" => {
   const didNotReplied = right === null;
   if (didNotReplied) return "gray";
