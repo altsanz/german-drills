@@ -95,7 +95,7 @@ export const prepositionsWithoutWechsel: ReadonlyArray<FixedPreposition> = [
 
 export const pronounsByMode: Record<Mode, ReadonlyArray<string>> = {
   akk: ["mich", "dich", "ihn", "es", "sie", "uns", "euch", "sie"],
-  dat: ["mir", "dir", "ihm", "ihr", "ihn", "uns", "euch", "ihnen"],
+  dat: ["mir", "dir", "ihm", "ihr", "uns", "euch", "ihnen"],
 };
 
 export const articlesByMode: Record<Mode, ReadonlyArray<string>> = {
