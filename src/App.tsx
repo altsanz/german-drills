@@ -4,12 +4,14 @@ import "./App.css";
 import { Intro } from "./pages/Intro";
 import PrepAndPron from "./pages/PrepAndPron";
 import WechAkkDat from "./pages/WechAkkDat";
+import WechAkkDatTurbo from "./pages/WechAkkDatTurbo";
 function App() {
   return (
     <Container height={"100%"}>
       <Routes>
         <Route path="/" element={<Intro />} />
         <Route path="/wech-akk-dat/*" element={<WechAkkDat />} />
+        <Route path="/wech-akk-dat-turbo/*" element={<WechAkkDatTurbo />} />
         <Route path="/prep-and-pron/*" element={<PrepAndPron />} />
       </Routes>
     </Container>

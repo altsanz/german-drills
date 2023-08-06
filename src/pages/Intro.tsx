@@ -28,6 +28,12 @@ export const Intro: React.FC = () => {
       >
         Prep und pron
       </Button>
+      <Button
+        style={{ marginTop: "20px" }}
+        onClick={() => navigate("/wech-akk-dat-turbo")}
+      >
+        Akk Wech Dat Turbo
+      </Button>
     </Box>
   );
 };
