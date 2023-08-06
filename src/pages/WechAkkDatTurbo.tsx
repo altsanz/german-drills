@@ -3,6 +3,7 @@ import {
   Button,
   ButtonGroup,
   CircularProgress,
+  CircularProgressLabel,
   Container,
   Fade,
   Heading,
@@ -52,12 +53,19 @@ function WechAkkDatTurbo() {
   const timeLeftRef = React.useRef<number>();
   const [timeLeft, setTimeLeft] = React.useState(MILLISECONDS_TO_ANSWER);
   React.useEffect(() => {
-    timerRef.current = startTimeout(setTimeIsOut);
-    timeLeftRef.current = startInterval(setTimeLeft);
+    timerRef.current = startTimeout(
+      setTimeIsOut,
+      currentStreak > 20 ? 2000 : currentStreak > 10 ? 3500 : 5000
+    );
+    timeLeftRef.current = startInterval(
+      setTimeLeft,
+      currentStreak > 20 ? 2000 : currentStreak > 10 ? 3500 : 5000
+    );
     return () => {
       clearTimeout(timerRef.current);
       clearInterval(timeLeftRef.current);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preposition]);
 
   React.useEffect(() => {
@@ -326,30 +334,33 @@ const TimeLeftIndicator: React.FC<{
     <CircularProgress
       color={"gray.400"}
       value={progressValue}
-      size={"30px"}
+      size={"40px"}
       marginTop="10px"
-    />
+    >
+      <CircularProgressLabel>
+        {(Math.round((timeLeft / 1000) * 10) / 10).toFixed(1)}
+      </CircularProgressLabel>
+    </CircularProgress>
   );
 };
 function startTimeout(
-  setTimeIsOut: React.Dispatch<React.SetStateAction<boolean>>
+  setTimeIsOut: React.Dispatch<React.SetStateAction<boolean>>,
+  millisecondsToAnswer: number
 ): number {
   return setTimeout(() => {
     setTimeIsOut(true);
-  }, MILLISECONDS_TO_ANSWER);
+  }, millisecondsToAnswer);
 }
 
-5000 > 100;
-2500 > 50;
-
 function startInterval(
-  setTimeLeft: React.Dispatch<React.SetStateAction<number>>
+  setTimeLeft: React.Dispatch<React.SetStateAction<number>>,
+  millisecondsToAnswer: number
 ): number {
-  let timeLeft = MILLISECONDS_TO_ANSWER;
+  let timeLeft = millisecondsToAnswer;
   return setInterval(() => {
     if (timeLeft > 0) {
-      timeLeft = timeLeft - 200;
+      timeLeft = timeLeft - 100;
       setTimeLeft(timeLeft);
     }
-  }, 200);
+  }, 100);
 }
