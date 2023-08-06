@@ -10,59 +10,12 @@ import React, { useEffect } from "react";
 // import "../App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Summary } from "../components/Summary";
+import {
+  Preposition,
+  Prepositions,
+  prepositions,
+} from "../consts/prepositions";
 import { useStreak } from "../hooks/useStreak";
-type Preposition = {
-  preposition: string;
-  mode: "akk" | "dat" | "wechsel";
-};
-
-type Prepositions = ReadonlyArray<Preposition>;
-
-const prepositions: Prepositions = [
-  {
-    preposition: "bis",
-    mode: "akk",
-  },
-  {
-    preposition: "durch",
-    mode: "akk",
-  },
-  {
-    preposition: "für",
-    mode: "akk",
-  },
-  {
-    preposition: "gegen",
-    mode: "akk",
-  },
-  {
-    preposition: "ohne",
-    mode: "akk",
-  },
-  {
-    preposition: "um",
-    mode: "akk",
-  },
-  { preposition: "an", mode: "wechsel" },
-  { preposition: "auf", mode: "wechsel" },
-  // { preposition: "entlang", mode: "wechsel" },
-  { preposition: "hinter", mode: "wechsel" },
-  { preposition: "in", mode: "wechsel" },
-  { preposition: "neben", mode: "wechsel" },
-  { preposition: "über", mode: "wechsel" },
-  { preposition: "unter", mode: "wechsel" },
-  { preposition: "vor", mode: "wechsel" },
-  { preposition: "zwischen", mode: "wechsel" },
-  { preposition: "aus", mode: "dat" },
-  { preposition: "ausser", mode: "dat" },
-  { preposition: "bei", mode: "dat" },
-  // { preposition: "gegenüber", mode: "dat" },
-  { preposition: "mit", mode: "dat" },
-  { preposition: "nach", mode: "dat" },
-  { preposition: "seit", mode: "dat" },
-  { preposition: "von", mode: "dat" },
-  { preposition: "zu", mode: "dat" },
-];
 
 // const PREPOSITIONS_PER_ROUND = 2;
 function WechAkkDat() {
