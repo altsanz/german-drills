@@ -8,6 +8,7 @@ import {
 } from "@chakra-ui/react";
 import React, { useEffect } from "react";
 // import "../App.css";
+import { Lens } from "@atomic-object/lenses";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Summary } from "../components/Summary";
 import {
@@ -15,11 +16,12 @@ import {
   Prepositions,
   prepositions,
 } from "../consts/prepositions";
+import { useLocalStorage } from "../hooks/useLocalStorage";
 import { useStreak } from "../hooks/useStreak";
 
 // const PREPOSITIONS_PER_ROUND = 2;
 function WechAkkDat() {
-  const { incrementRight, incrementWrong, stats } = useStats();
+  const { incrementRight, incrementWrong, stats } = useStats("wech-akk-dat");
   const navigate = useNavigate();
   useEffect(() => {
     // stats.right + stats.wrong >= PREPOSITIONS_PER_ROUND && navigate("./final");
@@ -105,31 +107,119 @@ const usePreposition = (
   };
 };
 
-const useStats = () => {
-  const [stats, setStats] = React.useState<{
-    right: number;
-    wrong: number;
-  }>({
-    right: 0,
-    wrong: 0,
-  });
+type DailyStat = {
+  right: number;
+  wrong: number;
+  averageResponseTime: number;
+};
+const aStat = (stat: JsonParsed): DailyStat => {
+  try {
+    return {
+      averageResponseTime: stat.averageResponseTime,
+      right: stat.right,
+      wrong: stat.wrong,
+    };
+  } catch (e) {
+    throw "Invalid stat";
+  }
+};
+
+const parseJSON = (data: string): JsonParsed => {
+  return JSON.parse(data);
+};
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+type JsonParsed = any;
+
+type Parser<T> = (something: JsonParsed) => T;
+
+const withObjects = <U,>(
+  valueParser: Parser<U>
+): Parser<{ [key: string]: U }> => {
+  return (value) => {
+    try {
+      return Object.fromEntries(
+        Object.entries(value).map(([key, value]) => [key, valueParser(value)])
+      );
+    } catch (e) {
+      throw "Invalid object";
+    }
+  };
+};
+const todayDate = new Date();
+
+const todayFormatted = `${todayDate.getFullYear()}${
+  todayDate.getMonth() + 1 < 10 ? "0" : ""
+}${todayDate.getMonth() + 1}${
+  todayDate.getDate() < 10 ? "0" : ""
+}${todayDate.getDate()}`;
+
+const todayStatLens = Lens.of<
+  {
+    [key: string]: DailyStat;
+  },
+  DailyStat
+>({
+  get: (stats) => stats[todayFormatted] ?? { right: 0, wrong: 0 },
+  set: (stats, todaysStat) => ({ ...stats, [todayFormatted]: todaysStat }),
+});
+
+const wrongStatLens = todayStatLens.comp(Lens.from<DailyStat>().prop("wrong"));
+const rightStatLens = todayStatLens.comp(Lens.from<DailyStat>().prop("right"));
+const averageResponseTimeStatLens = todayStatLens.comp(
+  Lens.from<DailyStat>().prop("averageResponseTime")
+);
+
+const useStats = (drill: string) => {
+  const [drillStats, setDrillStats] = useLocalStorage(`${drill}`, (list) =>
+    withObjects(aStat)(parseJSON(list ?? "{}"))
+  );
+
+  const [timestampLastResponse, setTimestampLastResponse] =
+    React.useState<number>(Date.now());
+
+  const todaysDrillStats = todayStatLens(drillStats);
 
   const incrementRight = () => {
-    setStats((prev) => ({
-      ...prev,
-      right: prev.right + 1,
-    }));
+    const elapsedTime = Date.now() - 2000 - timestampLastResponse;
+    const incrementedDrillStats = rightStatLens.set(
+      drillStats,
+      todaysDrillStats.right + 1
+    );
+    if (elapsedTime < 10000) {
+      setDrillStats(
+        averageResponseTimeStatLens.set(
+          incrementedDrillStats,
+          (todaysDrillStats.averageResponseTime + elapsedTime) / 2
+        )
+      );
+    } else {
+      setDrillStats(incrementedDrillStats);
+    }
+
+    setTimestampLastResponse(Date.now());
   };
   const incrementWrong = () => {
-    setStats((prev) => ({
-      ...prev,
-      wrong: prev.wrong + 1,
-      streak: 0,
-    }));
+    const elapsedTime = Date.now() - 2000 - timestampLastResponse;
+
+    const incrementedDrillStats = wrongStatLens.set(
+      drillStats,
+      todaysDrillStats.wrong + 1
+    );
+    if (elapsedTime < 10000) {
+      setDrillStats(
+        averageResponseTimeStatLens.set(
+          incrementedDrillStats,
+          (todaysDrillStats.averageResponseTime + elapsedTime) / 2
+        )
+      );
+    } else {
+      setDrillStats(incrementedDrillStats);
+    }
   };
 
   return {
-    stats,
+    stats: todaysDrillStats,
     incrementRight,
     incrementWrong,
   };

@@ -12,10 +12,10 @@ import { Route, Routes, useNavigate } from "react-router-dom";
 import { Summary } from "../components/Summary";
 import {
   FixedPreposition,
-  Preposition,
   prepositionsWithoutWechsel,
   pronounsByMode,
 } from "../consts/prepositions";
+import { usePreposition } from "../hooks/usePreposition";
 import { useStreak } from "../hooks/useStreak";
 // const PREPOSITIONS_PER_ROUND = 2;
 function PrepAndPron() {
@@ -90,28 +90,6 @@ function PrepAndPron() {
 }
 
 export default PrepAndPron;
-
-const usePreposition = <T extends Preposition>(
-  prepositions: ReadonlyArray<T>
-): {
-  preposition: T;
-  nextPreposition(): void;
-} => {
-  const getRandomPreposition = () =>
-    prepositions[Math.trunc(Math.random() * prepositions.length)];
-
-  const [preposition, setPreposition] = React.useState<T>(
-    getRandomPreposition()
-  );
-  const nextPreposition = () => {
-    setPreposition(getRandomPreposition());
-  };
-
-  return {
-    preposition,
-    nextPreposition,
-  };
-};
 
 const useStats = () => {
   const [stats, setStats] = React.useState<{

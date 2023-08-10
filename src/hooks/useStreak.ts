@@ -1,6 +1,10 @@
 import { useLocalStorage } from "./useLocalStorage";
 import { useStoredCounter } from "./useStoredCounter";
 
+/**
+ * Extends regular `storedCounter` with a max streak counter, in a persistent way.
+ * @returns A streak counter, a max streak counter and functions to perform actions on the streak counter
+ */
 export const useStreak = () => {
   const { increment, reset, counter: currentStreak } = useStoredCounter();
 
