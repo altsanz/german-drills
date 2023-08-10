@@ -52,7 +52,7 @@ const responseTimeListLens = todayStatLens.comp(
 const aStat = (stat: JsonParsed): DailyStat => {
   try {
     return {
-      responseTimeList: stat.averageResponseTime,
+      responseTimeList: stat.responseTimeList,
       right: stat.right,
       wrong: stat.wrong,
     };
@@ -86,10 +86,11 @@ export const useStats = (drill: string) => {
       drillStats,
       todaysDrillStats.right + 1
     );
+
     if (elapsedTime < 10000) {
       setDrillStats(
         responseTimeListLens.set(incrementedDrillStats, [
-          ...todaysDrillStats.responseTimeList,
+          ...(todaysDrillStats.responseTimeList ?? []),
           elapsedTime,
         ])
       );
@@ -109,7 +110,7 @@ export const useStats = (drill: string) => {
     if (elapsedTime < 10000) {
       setDrillStats(
         responseTimeListLens.set(incrementedDrillStats, [
-          ...todaysDrillStats.responseTimeList,
+          ...(todaysDrillStats.responseTimeList ?? []),
           elapsedTime,
         ])
       );
