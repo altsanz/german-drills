@@ -9,14 +9,10 @@ import {
   Heading,
 } from "@chakra-ui/react";
 import React, { useEffect } from "react";
-// import "../App.css";
 import { Route, Routes, useNavigate } from "react-router-dom";
 import { Summary } from "../components/Summary";
-import {
-  Preposition,
-  Prepositions,
-  prepositions,
-} from "../consts/prepositions";
+import { Preposition, prepositions } from "../consts/prepositions";
+import { usePreposition } from "../hooks/usePreposition";
 import { useStreak } from "../hooks/useStreak";
 
 const MILLISECONDS_TO_ANSWER = 5000;
@@ -53,6 +49,7 @@ function WechAkkDatTurbo() {
   const timeLeftRef = React.useRef<number>();
   const [timeLeft, setTimeLeft] = React.useState(MILLISECONDS_TO_ANSWER);
   React.useEffect(() => {
+    console.log("resetted timer and counter because of ", preposition);
     timerRef.current = startTimeout(
       setTimeIsOut,
       currentStreak > 20 ? 2000 : currentStreak > 10 ? 3500 : 5000
@@ -135,28 +132,6 @@ function WechAkkDatTurbo() {
 }
 
 export default WechAkkDatTurbo;
-
-const usePreposition = (
-  prepositions: Prepositions
-): {
-  preposition: Preposition;
-  nextPreposition(): void;
-} => {
-  const getRandomPreposition = () =>
-    prepositions[Math.trunc(Math.random() * prepositions.length)];
-
-  const [preposition, setPreposition] = React.useState<Preposition>(
-    getRandomPreposition()
-  );
-  const nextPreposition = () => {
-    setPreposition(getRandomPreposition());
-  };
-
-  return {
-    preposition,
-    nextPreposition,
-  };
-};
 
 const useStats = () => {
   const [stats, setStats] = React.useState<{

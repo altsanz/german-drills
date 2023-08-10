@@ -19,7 +19,7 @@ export const usePreposition = <T extends Preposition>(
     getRandomPreposition()
   );
   const nextPreposition = () => {
-    setPreposition(getRandomPreposition());
+    setPreposition({ ...getRandomPreposition() });
   };
 
   return {

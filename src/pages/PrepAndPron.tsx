@@ -16,10 +16,11 @@ import {
   pronounsByMode,
 } from "../consts/prepositions";
 import { usePreposition } from "../hooks/usePreposition";
+import { useStats } from "../hooks/useStats";
 import { useStreak } from "../hooks/useStreak";
 // const PREPOSITIONS_PER_ROUND = 2;
 function PrepAndPron() {
-  const { incrementRight, incrementWrong, stats } = useStats();
+  const { incrementRight, incrementWrong, stats } = useStats("prep-and-pron");
   const navigate = useNavigate();
   useEffect(() => {
     // stats.right + stats.wrong >= PREPOSITIONS_PER_ROUND && navigate("./final");
@@ -90,36 +91,6 @@ function PrepAndPron() {
 }
 
 export default PrepAndPron;
-
-const useStats = () => {
-  const [stats, setStats] = React.useState<{
-    right: number;
-    wrong: number;
-  }>({
-    right: 0,
-    wrong: 0,
-  });
-
-  const incrementRight = () => {
-    setStats((prev) => ({
-      ...prev,
-      right: prev.right + 1,
-    }));
-  };
-  const incrementWrong = () => {
-    setStats((prev) => ({
-      ...prev,
-      wrong: prev.wrong + 1,
-      streak: 0,
-    }));
-  };
-
-  return {
-    stats,
-    incrementRight,
-    incrementWrong,
-  };
-};
 
 const Game: React.FC<{
   response: string | undefined;
