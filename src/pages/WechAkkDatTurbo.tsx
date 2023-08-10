@@ -296,7 +296,7 @@ const getButtonColorScheme = (
   const userRepliedThis = buttonValue === response;
   if (!right && userRepliedThis) return "red";
   if (response === rightAnswer && userRepliedThis) return "green";
-  if (!right && buttonValue === rightAnswer) return "green";
+  if (right === false && buttonValue === rightAnswer) return "green";
   if (response === undefined && buttonValue === rightAnswer) return "purple";
   return "gray";
 };
