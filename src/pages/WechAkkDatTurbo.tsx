@@ -224,7 +224,11 @@ const Game: React.FC<{
           </Heading>
         </Fade>
         <Fade in={!response}>
-          <TimeLeftIndicator timeToReply={timeToReply} timeLeft={timeLeft} />
+          <TimeLeftIndicator
+            key={preposition.preposition}
+            timeToReply={timeToReply}
+            timeLeft={timeLeft}
+          />
         </Fade>
       </Box>
       <Box
@@ -292,6 +296,7 @@ const getButtonColorScheme = (
   const userRepliedThis = buttonValue === response;
   if (!right && userRepliedThis) return "red";
   if (response === rightAnswer && userRepliedThis) return "green";
+  if (!right && buttonValue === rightAnswer) return "green";
   if (response === undefined && buttonValue === rightAnswer) return "purple";
   return "gray";
 };
